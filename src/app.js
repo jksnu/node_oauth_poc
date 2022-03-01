@@ -5,12 +5,12 @@ const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
 const createError = require('http-errors');
 const cors = require('cors');
-const utils = require('./util/utils');
-const userRoute = require('./routes/user_routes');
 const oauthRoute = require('./routes/auth_routes');
 const authMiddleWare = require('./middleware/auth');
+const fs = require('fs');
+const jose = require('node-jose');
 
-const port = 8000;
+const port = 7000;
 const app = express(); 
 dotenv.config({
   path: path.join(__dirname, '../.env')
@@ -67,14 +67,35 @@ app.use((err, req, res, next) => {
   } 
 });
 
-app.use('/user', authMiddleWare.authenticate, userRoute); //user routes
-app.use('/oauth', oauthRoute)
+app.use('/oauth', oauthRoute) //oauth route
 
 //routes
 app.get('/', (req, res) => {
   res.cookie('XSRF-TOKEN', req.csrfToken(), { httpOnly: false });
   res.json({"status": "Success", "message": "Hello world"});
 });
+
+/**
+ * This JWKS route is used to get the JWK from auth api
+ * In real time microservice architecture, all APIs will use this route to get
+ * Public key to verify the incoming JWT token
+ * This public key can be cached in reddis or mem-cache to avoid triggering this route for 
+ * every incoming request.
+ */
+app.get('/jwks', authMiddleWare.authenticate, async (req, res) => {
+  try {
+    const ks = fs.readFileSync('./certs/keys.json');
+    const keyStore = await jose.JWK.asKeyStore(ks.toString());
+    
+    res.send(keyStore.toJSON());
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({
+      "status": "failed",
+      "message": "Error occurred"
+    })
+  }  
+})
 
 app.listen(port, () => {
   console.log(`app is listening at port ${port} by Process ${process.pid}`);
