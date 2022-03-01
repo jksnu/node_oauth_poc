@@ -57,16 +57,6 @@ const corsOptions = {
 }
 app.use(cors(corsOptions));
 
-//handling unhandled error
-app.use((err, req, res, next) => {
-  if (err.code == 'EBADCSRFTOKEN') {
-    // handle CSRF token errors here
-    res.status(403).json({ code: 403, message: err.message });
-  } else {
-    return next(createError(404));
-  } 
-});
-
 app.use('/oauth', oauthRoute) //oauth route
 
 //routes
@@ -96,6 +86,16 @@ app.get('/jwks', authMiddleWare.authenticate, async (req, res) => {
     })
   }  
 })
+
+//handling unhandled error
+app.use((err, req, res, next) => {
+  if (err.code == 'EBADCSRFTOKEN') {
+    // handle CSRF token errors here
+    res.status(403).json({ code: 403, message: err.message });
+  } else {
+    return next(createError(404));
+  } 
+});
 
 app.listen(port, () => {
   console.log(`app is listening at port ${port} by Process ${process.pid}`);
