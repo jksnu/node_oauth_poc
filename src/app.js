@@ -9,6 +9,7 @@ const oauthRoute = require('./routes/auth_routes');
 const authMiddleWare = require('./middleware/auth');
 const fs = require('fs');
 const jose = require('node-jose');
+const helmet = require('helmet');
 
 const port = 7000;
 const app = express(); 
@@ -20,6 +21,7 @@ dotenv.config({
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(helmet());
 
 //csrf middle ware
 var csrfProtection = csrf({ cookie: true });

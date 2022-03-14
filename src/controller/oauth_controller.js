@@ -1,6 +1,5 @@
 const authService = require('../service/oauth_service');
 const util = require('../util/utils');
-const jwt = require('jsonwebtoken');
 const jwtUtil = require('../util/jwt_utils');
 
 async function googleOauthHandler(req, res) {

@@ -33,7 +33,8 @@ async function authenticate(req, res, next) {
       if(!tokenVerifyRes.valid || tokenVerifyRes.expired || !userDecodedResult) {
         res.status(401).json(loginFailedJson);  
       } else {
-        const userSession = util.getActiveUserSession(userDecodedResult.email);
+        //const userSession = util.getActiveUserSession(userDecodedResult.email);
+        util.getActiveUserSession(userDecodedResult.email);
         /**
          * Here, user details got from the incoming authrization token must be verified from DB
          * As, I have not implemented db in this POC, 
@@ -59,15 +60,18 @@ async function authenticate(req, res, next) {
     res.status(401).json(loginFailedJson)
   }
 }
-
-function getPublicKeyFromPublicPem() {
+/**
+ * Reading key from public .pem file
+ * @returns 
+ */
+/*function getPublicKeyFromPublicPem() {
   try {
     const publicKey = fs.readFileSync('./certs/public.pem', "utf8");
     return publicKey;
   } catch (error) {
     throw error;
   }
-}
+}*/
 
 async function getPublicKeyByJose() {
   try {    
@@ -78,6 +82,7 @@ async function getPublicKeyByJose() {
     const publicKey = jwktopem(firstKey);
     return publicKey;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 }

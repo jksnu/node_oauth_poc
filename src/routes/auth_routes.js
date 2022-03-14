@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const utils = require('../util/utils');
 const oauthCtrl = require('../controller/oauth_controller');
 
 //Code for google authentication starts here
